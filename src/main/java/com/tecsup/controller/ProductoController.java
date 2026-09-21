@@ -32,6 +32,7 @@ public class ProductoController {
         p.setNombre(dto.getNombre());
         p.setPrecio(dto.getPrecio());
         p.setStock(dto.getStock());
+        p.setCategoria(dto.getCategoria());
 
         Producto guardado = service.guardar(p);
 
@@ -64,6 +65,7 @@ public class ProductoController {
         existente.setNombre(dto.getNombre());
         existente.setPrecio(dto.getPrecio());
         existente.setStock(dto.getStock());
+        existente.setCategoria(dto.getCategoria());
 
         return ResponseEntity.ok(service.guardar(existente));
     }
