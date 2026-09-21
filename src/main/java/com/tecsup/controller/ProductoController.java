@@ -24,6 +24,12 @@ public class ProductoController {
         return ResponseEntity.ok(service.listar());
     }
 
+    // GET buscar por nombre
+    @GetMapping("/buscar")
+    public ResponseEntity<List<Producto>> buscarPorNombre(@RequestParam String nombre) {
+        return ResponseEntity.ok(service.buscarPorNombre(nombre));
+    }
+
     // POST (con DTO + validación)
     @PostMapping
     public ResponseEntity<?> guardar(@Valid @RequestBody ProductoDTO dto) {

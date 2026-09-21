@@ -21,7 +21,7 @@ public class ProductoService {
         return repo.save(p);
     }
 
-    public Producto obtener(Long id) {
+public Producto obtener(Long id) {
         return repo.findById(id).orElse(null);
     }
 
@@ -29,4 +29,7 @@ public class ProductoService {
         repo.deleteById(id);
     }
 
+    public List<Producto> buscarPorNombre(String nombre) {
+        return repo.findByNombreContainingIgnoreCase(nombre);
+    }
 }
