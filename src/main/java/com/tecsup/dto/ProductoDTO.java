@@ -13,6 +13,9 @@ public class ProductoDTO {
     @Min(value = 0, message = "El stock no puede ser negativo")
     private int stock;
 
+    @NotBlank(message = "La categoría es obligatoria")
+    private String categoria;
+
     public String getNombre() {
         return nombre;
     }
@@ -35,5 +38,13 @@ public class ProductoDTO {
 
     public void setStock(int stock) {
         this.stock = stock;
+    }
+
+    public String getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(String categoria) {
+        this.categoria = categoria;
     }
 }
