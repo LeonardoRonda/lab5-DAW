@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "auditoria_log")
 public class AuditoriaLog {
 
     @Id
@@ -15,7 +14,6 @@ public class AuditoriaLog {
     private String metodo;
     private LocalDateTime fecha;
     private String detalle;
-    @Column(length = 100)
     private String usuario;
 
     public AuditoriaLog() {}
@@ -28,6 +26,13 @@ public class AuditoriaLog {
         this.usuario = usuario;
     }
 
+    public String getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
+    }
 
     public Long getId() {
         return id;
@@ -67,13 +72,5 @@ public class AuditoriaLog {
 
     public void setDetalle(String detalle) {
         this.detalle = detalle;
-    }
-
-    public String getUsuario() {
-        return usuario;
-    }
-
-    public void setUsuario(String usuario) {
-        this.usuario = usuario;
     }
 }

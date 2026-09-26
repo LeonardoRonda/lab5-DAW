@@ -1,7 +1,7 @@
 package com.tecsup.exception;
 
 public class ForbiddenException extends RuntimeException {
-    public ForbiddenException(String message) {
-        super(message);
+    public ForbiddenException(String mensaje) {
+        super(mensaje);
     }
 }

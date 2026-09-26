@@ -6,24 +6,15 @@ import com.tecsup.model.Producto;
 import com.tecsup.service.AuditoriaService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.aspectj.lang.JoinPoint;
-import org.aspectj.lang.annotation.AfterReturning;
-import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
+import org.aspectj.lang.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
 import java.util.Map;
 
 @Aspect
 @Component
 public class AuditoriaAspect {
-
-    private static final Map<String, String> USUARIOS = Map.of(
-            "Ricardo", "ADMIN",
-            "Ana", "USER",
-            "Luis", "USER"
-    );
 
     @Autowired
     private AuditoriaService auditoriaService;
@@ -31,22 +22,37 @@ public class AuditoriaAspect {
     @Autowired
     private HttpServletRequest request;
 
+    // Usuarios centralizados
+    private Map<String, String> usuarios = Map.of(
+            "Ricardo", "ADMIN",
+            "Ana", "USER",
+            "Luis", "USER"
+    );
+
+    // =========================
+    // VALIDACIÓN
+    // =========================
+
     private void validarUsuario() {
+
         String usuario = request.getHeader("Usuario");
         String rolHeader = request.getHeader("Rol");
 
-        if (usuario == null || usuario.isBlank() || rolHeader == null || rolHeader.isBlank()) {
+        if (usuario == null || rolHeader == null) {
             throw new UnauthorizedException("Debe enviar Usuario y Rol");
         }
 
-        String rolReal = USUARIOS.get(usuario);
+        String rolReal = usuarios.get(usuario);
+
         if (rolReal == null || !rolReal.equals(rolHeader)) {
             throw new ForbiddenException("No tiene permisos");
         }
     }
 
     private void validarRol(String... rolesPermitidos) {
+
         validarUsuario();
+
         String rol = request.getHeader("Rol");
 
         for (String permitido : rolesPermitidos) {
@@ -58,24 +64,29 @@ public class AuditoriaAspect {
         throw new ForbiddenException("Acceso denegado");
     }
 
+    // =========================
+    // USUARIO
+    // =========================
+
     private String obtenerUsuario() {
+
         String usuario = request.getHeader("Usuario");
-        String rol = USUARIOS.get(usuario);
-        return rol == null ? "DESCONOCIDO" : usuario + " (" + rol + ")";
+
+        if (usuario == null) return "ANONIMO";
+
+        String rol = usuarios.get(usuario);
+
+        return (rol != null)
+                ? usuario + " (" + rol + ")"
+                : "DESCONOCIDO";
     }
+
+    // =========================
+    // CONTROL POR MÉTODO
+    // =========================
 
     @Before("execution(* com.tecsup.service.ProductoService.guardar(..))")
     public void validarCrear() {
-        validarRol("ADMIN", "USER");
-    }
-
-    @Before("execution(* com.tecsup.service.ProductoService.listar(..))")
-    public void validarListar() {
-        validarRol("ADMIN", "USER");
-    }
-
-    @Before("execution(* com.tecsup.service.ProductoService.actualizar(..))")
-    public void validarActualizar() {
         validarRol("ADMIN");
     }
 
@@ -84,53 +95,69 @@ public class AuditoriaAspect {
         validarRol("ADMIN");
     }
 
-    @Before("execution(* com.tecsup.service.ProductoService.obtener(..)) || execution(* com.tecsup.service.ProductoService.buscarPorNombre(..))")
-    public void validarConsultaAdmin() {
+    @Before("execution(* com.tecsup.service.ProductoService.actualizar(..))")
+    public void validarActualizar() {
         validarRol("ADMIN");
     }
 
+    @Before("execution(* com.tecsup.service.ProductoService.listar(..))")
+    public void validarListar() {
+        validarRol("ADMIN", "USER");
+    }
+
+    // =========================
+    // AUDITORÍA
+    // =========================
+
     @AfterReturning("execution(* com.tecsup.service.ProductoService.guardar(..))")
     public void auditarGuardar(JoinPoint joinPoint) {
-        Producto producto = (Producto) joinPoint.getArgs()[0];
+
         auditoriaService.registrar(
                 "CREAR",
                 joinPoint.getSignature().getName(),
-                "Se creó producto con ID: " + producto.getId(),
-                obtenerUsuario()
-        );
-    }
-
-    @AfterReturning("execution(* com.tecsup.service.ProductoService.actualizar(..))")
-    public void auditarActualizar(JoinPoint joinPoint) {
-        Producto producto = (Producto) joinPoint.getArgs()[0];
-        auditoriaService.registrar(
-                "ACTUALIZAR",
-                joinPoint.getSignature().getName(),
-                "Se actualizó producto con ID: " + producto.getId(),
-                obtenerUsuario()
-        );
-    }
-
-    @AfterReturning(
-            pointcut = "execution(* com.tecsup.service.ProductoService.listar(..))",
-            returning = "productos"
-    )
-    public void auditarListar(JoinPoint joinPoint, List<Producto> productos) {
-        auditoriaService.registrar(
-                "LISTAR",
-                joinPoint.getSignature().getName(),
-                "Cantidad de productos: " + productos.size(),
+                "Se creó producto: " + obtenerParametros(joinPoint),
                 obtenerUsuario()
         );
     }
 
     @AfterReturning("execution(* com.tecsup.service.ProductoService.eliminar(..))")
     public void auditarEliminar(JoinPoint joinPoint) {
+
         auditoriaService.registrar(
                 "ELIMINAR",
                 joinPoint.getSignature().getName(),
-                "Se eliminó producto ID: " + joinPoint.getArgs()[0],
+                "Se eliminó producto ID: " + obtenerParametros(joinPoint),
                 obtenerUsuario()
         );
+    }
+
+    @AfterReturning("execution(* com.tecsup.service.ProductoService.actualizar(..))")
+    public void auditarActualizar(JoinPoint joinPoint) {
+
+        auditoriaService.registrar(
+                "ACTUALIZAR",
+                joinPoint.getSignature().getName(),
+                "Se actualizó producto: " + obtenerParametros(joinPoint),
+                obtenerUsuario()
+        );
+    }
+
+    // =========================
+    // UTILIDAD (VERSIÓN CORRECTA)
+    // =========================
+
+    private String obtenerParametros(JoinPoint joinPoint) {
+        Object[] args = joinPoint.getArgs();
+
+        if (args.length == 0) return "sin datos";
+
+        Object obj = args[0];
+
+        if (obj instanceof Producto p) {
+            return "nombre=" + p.getNombre() +
+                    ", precio=" + p.getPrecio();
+        }
+
+        return obj.toString();
     }
 }
