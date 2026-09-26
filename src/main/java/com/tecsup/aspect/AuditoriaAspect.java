@@ -25,7 +25,7 @@ public class AuditoriaAspect {
 
     // Usuarios centralizados
     private Map<String, String> usuarios = Map.of(
-            "Le0", "ADMIN",
+            "Leo", "ADMIN",
             "Ana", "USER",
             "Luis", "USER"
     );
