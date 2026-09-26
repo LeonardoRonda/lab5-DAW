@@ -22,13 +22,13 @@ Crear la base de datos en MySQL:
 CREATE DATABASE laboratorio_api;
 ```
 
-Configuración en `src/main/resources/application.properties`:
-```properties
-spring.datasource.url=jdbc:mysql://127.0.0.1:3306/laboratorio_api?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
-spring.datasource.username=root
-spring.datasource.password=1111
-spring.jpa.hibernate.ddl-auto=update
+Configura las credenciales de MySQL en el entorno antes de iniciar la aplicación:
+```text
+DB_URL=jdbc:mysql://127.0.0.1:3306/laboratorio_api?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+DB_USERNAME=root
+DB_PASSWORD=tu_contraseña_de_mysql
 ```
+En IntelliJ, añade `DB_URL`, `DB_USERNAME` y `DB_PASSWORD` en **Run | Edit Configurations | Environment variables**. Spring generará las tablas de las entidades al iniciar.
 
 ## Endpoints
 
