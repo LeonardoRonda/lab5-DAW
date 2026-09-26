@@ -41,6 +41,27 @@ En IntelliJ, añade `DB_URL`, `DB_USERNAME` y `DB_PASSWORD` en **Run | Edit Conf
 | PUT | `/api/productos/{id}` | Actualizar producto |
 | DELETE | `/api/productos/{id}` | Eliminar producto |
 
+Todas las solicitudes a `/api/productos` requieren los encabezados `Usuario` y `Rol`.
+
+| Usuario | Rol | Acceso |
+|---------|-----|--------|
+| Ricardo | ADMIN | Listar, crear, consultar, buscar, actualizar y eliminar |
+| Ana | USER | Listar y crear |
+| Luis | USER | Listar y crear |
+
+La API responde `401` si falta alguno de los encabezados y `403` si el usuario y rol no coinciden o el rol no tiene acceso a la operación.
+
+Ejemplo de encabezados para Postman:
+```text
+Usuario: Ana
+Rol: USER
+```
+
+La auditoría registra acción, método, fecha, detalle y usuario. Al iniciar con `spring.jpa.hibernate.ddl-auto=update`, JPA incorpora la columna `usuario` en `auditoria_log`; si se prefiere actualizarla manualmente, ejecutar una sola vez:
+```sql
+ALTER TABLE auditoria_log ADD usuario VARCHAR(100);
+```
+
 ### Ejemplo POST /api/productos
 ```json
 {

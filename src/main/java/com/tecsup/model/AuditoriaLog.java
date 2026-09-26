@@ -15,14 +15,17 @@ public class AuditoriaLog {
     private String metodo;
     private LocalDateTime fecha;
     private String detalle;
+    @Column(length = 100)
+    private String usuario;
 
     public AuditoriaLog() {}
 
-    public AuditoriaLog(String accion, String metodo, String detalle) {
+    public AuditoriaLog(String accion, String metodo, String detalle, String usuario) {
         this.accion = accion;
         this.metodo = metodo;
         this.fecha = LocalDateTime.now();
         this.detalle = detalle;
+        this.usuario = usuario;
     }
 
 
@@ -64,5 +67,13 @@ public class AuditoriaLog {
 
     public void setDetalle(String detalle) {
         this.detalle = detalle;
+    }
+
+    public String getUsuario() {
+        return usuario;
+    }
+
+    public void setUsuario(String usuario) {
+        this.usuario = usuario;
     }
 }
