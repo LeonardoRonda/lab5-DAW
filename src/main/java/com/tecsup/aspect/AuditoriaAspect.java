@@ -124,10 +124,13 @@ public class AuditoriaAspect {
     @AfterReturning("execution(* com.tecsup.service.ProductoService.eliminar(..))")
     public void auditarEliminar(JoinPoint joinPoint) {
 
+        Object[] parametros = joinPoint.getArgs();
+        Long id = (Long) parametros[0];
+
         auditoriaService.registrar(
                 "ELIMINAR",
                 joinPoint.getSignature().getName(),
-                "Se eliminó producto ID: " + obtenerParametros(joinPoint),
+                "Se eliminó producto ID: " + id,
                 obtenerUsuario()
         );
     }
