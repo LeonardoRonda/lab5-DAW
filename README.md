@@ -45,9 +45,9 @@ Todas las solicitudes a `/api/productos` requieren los encabezados `Usuario` y `
 
 | Usuario | Rol | Acceso |
 |---------|-----|--------|
-| Ricardo | ADMIN | Listar, crear, consultar, buscar, actualizar y eliminar |
-| Ana | USER | Listar y crear |
-| Luis | USER | Listar y crear |
+| Leo     | ADMIN | Listar, crear, consultar, buscar, actualizar y eliminar |
+| Ana     | USER | Listar y crear |
+| Luis    | USER | Listar y crear |
 
 La API responde `401` si falta alguno de los encabezados y `403` si el usuario y rol no coinciden o el rol no tiene acceso a la operación.
 
