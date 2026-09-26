@@ -10,6 +10,7 @@ import org.aspectj.lang.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 
 @Aspect
@@ -87,7 +88,7 @@ public class AuditoriaAspect {
 
     @Before("execution(* com.tecsup.service.ProductoService.guardar(..))")
     public void validarCrear() {
-        validarRol("ADMIN");
+        validarRol("ADMIN", "USER");
     }
 
     @Before("execution(* com.tecsup.service.ProductoService.eliminar(..))")
@@ -127,6 +128,19 @@ public class AuditoriaAspect {
                 "ELIMINAR",
                 joinPoint.getSignature().getName(),
                 "Se eliminó producto ID: " + obtenerParametros(joinPoint),
+                obtenerUsuario()
+        );
+    }
+    @AfterReturning(
+            pointcut = "execution(* com.tecsup.service.ProductoService.listar(..))",
+            returning = "resultado"
+    )
+    public void auditarListar(List<Producto> resultado) {
+
+        auditoriaService.registrar(
+                "LISTAR",
+                "listar",
+                "Cantidad de productos: " + resultado.size(),
                 obtenerUsuario()
         );
     }
